@@ -1,9 +1,23 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
+import { GetStaticProps } from "next";
+import { addApolloState, initializeApollo } from "../apollo-client";
+import { gql } from "@apollo/client";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
+
+const bossQuery = gql`
+  query {
+    boss {
+      id
+      name
+      description
+      image
+    }
+  }
+`;
 
 export default function Home() {
   return (
@@ -26,7 +40,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              By{' '}
+              By{" "}
               <Image
                 src="/vercel.svg"
                 alt="Vercel Logo"
@@ -110,5 +124,19 @@ export default function Home() {
         </div>
       </main>
     </>
-  )
+  );
 }
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+  const client = initializeApollo();
+
+  await client.query({
+    query: bossQuery,
+  });
+
+console.log(client.cache.readQuery({query: bossQuery}))
+
+  return addApolloState(client, {
+    props: {},
+  });
+};
